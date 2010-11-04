@@ -54,7 +54,7 @@ configuration.load do
 			put path_library, "#{shared_path}/config/backend/config.php"
 
 			# change the path to current_path
-			run "if [ -f #{shared_path}/config/library/globals.php ]; then sed -i '' 's/#{version_dir}\\/[0-9]*/#{current_dir}/' #{shared_path}/config/library/globals.php; fi"
+			run "if [ -f #{shared_path}/config/library/globals.php ]; then sed -i 's/#{version_dir}\\/[0-9]*/#{current_dir}/' #{shared_path}/config/library/globals.php; fi"
 
 			# create dirs
 			run %{
@@ -98,6 +98,6 @@ configuration.load do
 					ln -s #{shared_path}/files/#{folder} #{release_path}/default_www/frontend/files/#{folder}
 				}
 			end
-		end
+		end	
 	end
 end
