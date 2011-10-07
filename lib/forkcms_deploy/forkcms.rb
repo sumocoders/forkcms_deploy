@@ -93,6 +93,7 @@ configuration.load do
 			folders.each do |folder|
 				# copy them to the shared path, remove them from the release and symlink them
 				run %{
+				  mkdir -p #{shared_path}/files/#{folder} &&
 					cp -r #{release_path}/default_www/frontend/files/#{folder} #{shared_path}/files/#{folder} &&
 					rm -rf #{release_path}/default_www/frontend/files/#{folder} &&
 					ln -s #{shared_path}/files/#{folder} #{release_path}/default_www/frontend/files/#{folder}
