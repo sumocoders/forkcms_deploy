@@ -79,8 +79,8 @@ configuration.load do
 
 			unless documentRootExists == 'no'
 				warn "Warning: Document root (#{document_root}) already exists"
-				warn "to link it to the Fork deploy issue the following command:"
-				warn "	ln -sf #{current_path}/default_www #{document_root}"
+				warn 'to link it to the Fork deploy issue the following command:'
+				warn '	ln -sf #{current_path}/default_www #{document_root}'
 			end 
 		end	
 
