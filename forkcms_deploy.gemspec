@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
     "forkcms_deploy.gemspec",
     "lib/forkcms_deploy.rb",
     "lib/forkcms_deploy/defaults.rb",
-    "lib/forkcms_deploy/forkcms.rb",
     "lib/forkcms_deploy/forkcms0.rb",
     "lib/forkcms_deploy/forkcms2.rb",
     "lib/forkcms_deploy/forkcms3.rb",
