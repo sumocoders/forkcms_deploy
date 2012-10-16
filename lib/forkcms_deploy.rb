@@ -1,4 +1,4 @@
-require forkcms_deploy/forkcms.rb
+require "forkcms_deploy/forkcms.rb"
 begin
 	version = ForkCMSDeploy::ForkCMS.determine_version_to_use(File.read("VERSION.md"))
 	require "forkcms_deploy/forkcms_#{version}"
