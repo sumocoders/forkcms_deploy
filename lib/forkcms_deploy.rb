@@ -1,6 +1,6 @@
+require forkcms_deploy/forkcms.rb
 begin
-	content = File.read("VERSION.md")
-	version = content[0, content.index('.')]
+	version = ForkCMSDeploy::ForkCMS.determine_version_to_use(File.read("VERSION.md"))
 	require "forkcms_deploy/forkcms_#{version}"
 rescue SystemCallError
 	$stderr.puts "No VERSION file found, Are you sure you're in a FORK project?"
