@@ -101,4 +101,14 @@ configuration.load do
 			end
 		end
 	end
+
+	# composer specific tasks
+	namespace :composer do
+		desc 'Install composer'
+		task :install_composer do
+			run %{
+				if [ ! -e #{shared_path}/composer.phar ]; then cd #{shared_path}; curl -s https://getcomposer.org/installer | php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC'; fi
+			}
+		end
+	end
 end
