@@ -10,6 +10,7 @@ configuration.load do
 	end
 
 	after 'deploy:update_code' do
+		composer.install_vendors
 		forkcms.link_configs
 		forkcms.link_files
 	end
@@ -104,6 +105,15 @@ configuration.load do
 
 	# composer specific tasks
 	namespace :composer do
+		desc 'Install the vendors'
+		task :install_vendors do
+			composer.install_composer
+			run %{
+				cd #{latest_release} &&
+				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install
+			}
+		end
+
 		desc 'Install composer'
 		task :install_composer do
 			run %{
