@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "forkcms_deploy"
-  s.version = "2.3.0"
+  s.version = "2.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tijs Verkoyen", "Jan De Poorter", "Sam Tubbax"]
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
     "lib/forkcms_deploy/forkcms.rb",
     "lib/forkcms_deploy/forkcms_2.rb",
     "lib/forkcms_deploy/forkcms_3.4.rb",
+    "lib/forkcms_deploy/forkcms_3.5.rb",
     "lib/forkcms_deploy/forkcms_3.rb",
     "lib/forkcms_deploy/forkcms_default.rb",
     "lib/forkcms_deploy/overwrites.rb",
