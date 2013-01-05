@@ -21,10 +21,10 @@ configuration.load do
 
 			# change the path to current_path
 			run "if [ -f #{shared_path}/config/library/globals.php ]; then sed -i 's/#{version_dir}\\/[0-9]*/#{current_dir}/' #{shared_path}/config/library/globals.php; fi"
-			
+
 			# symlink the globals
 			run %{
-				ln -sf #{shared_path}/config/library/globals.php #{release_path}/library/globals.php 
+				ln -sf #{shared_path}/config/library/globals.php #{release_path}/library/globals.php
 			}
 		end
 
@@ -37,8 +37,8 @@ configuration.load do
 				warn "Warning: Document root (#{document_root}) already exists"
 				warn "to link it to the Fork deploy issue the following command:"
 				warn "	ln -sf #{current_path}/default_www #{document_root}"
-			end 
-		end	
+			end
+		end
 
 		desc 'Create needed symlinks'
 		task :link_files do
@@ -54,6 +54,19 @@ configuration.load do
 					ln -s #{shared_path}/files/#{folder} #{release_path}/default_www/userfiles/#{folder}
 				}
 			end
-		end	
+
+			# get the list of folders in /frontend/files
+			folders = capture("ls -1 #{release_path}/default_www/modulefiles").split(/\r?\n/)
+
+			# loop the folders
+			folders.each do |folder|
+				# copy them to the shared path, remove them from the release and symlink them
+				run %{
+					cp -r #{release_path}/default_www/modulefiles/#{folder} #{shared_path}/files/#{folder} &&
+					rm -rf #{release_path}/default_www/modulefiles/#{folder} &&
+					ln -s #{shared_path}/files/#{folder} #{release_path}/default_www/modulefiles/#{folder}
+				}
+			end
+		end
 	end
 end
