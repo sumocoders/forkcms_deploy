@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "forkcms_deploy"
-  s.version = "2.4.0"
+  s.version = "2.4.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tijs Verkoyen", "Jan De Poorter", "Sam Tubbax"]
-  s.date = "2013-01-05"
+  s.date = "2013-01-14"
   s.description = "Deployment for ForkCMS with Capistrano"
   s.email = "info@sumocoders.be"
   s.extra_rdoc_files = [
