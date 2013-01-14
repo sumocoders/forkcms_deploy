@@ -2,7 +2,7 @@ require "forkcms_deploy/forkcms_3"
 configuration = Capistrano::Configuration.respond_to?(:instance) ? Capistrano::Configuration.instance(:must_exist) : Capistrano.configuration(:must_exist)
 
 configuration.load do
-	set :shared_children, %w(files config)
+	set :shared_children, %w(files config install)
 
 	after 'deploy:update_code' do
 		composer.install_vendors
@@ -34,10 +34,12 @@ configuration.load do
 
 			# change the path to current_path
 			run "if [ -f #{shared_path}/config/parameters.yml ]; then sed -i 's/#{version_dir}\\/[0-9]*/#{current_dir}/' #{shared_path}/config/parameters.yml; fi"
+			run "if [ ! -f #{shared_path}/install/installed.txt ]; then touch #{shared_path}/install/installed.txt; fi"
 
-			# symlink the globals
+			# symlink the parameters
 			run %{
-				ln -sf #{shared_path}/config/parameters.yml #{release_path}/app/config/parameters.yml
+				ln -sf #{shared_path}/config/parameters.yml #{release_path}/app/config/parameters.yml &&
+				ln -sf #{shared_path}/install/installed.txt #{release_path}/install/cache/installed.txt
 			}
 		end
 	end
