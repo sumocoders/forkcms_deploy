@@ -43,6 +43,31 @@ configuration.load do
 			}
 		end
     
+		desc 'Clear the frontend and backend cache-folders'
+		task :clear_cached do
+			# remove frontend cached data
+			run %{
+				rm -rf #{current_path}/src/Frontend/Cache/CachedTemplates/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/CompiledTemplates/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/Locale/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/MinifiedCss/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/MinifiedJs/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/Navigation/* &&
+				rm -rf #{current_path}/src/Frontend/Cache/Search/*
+			}
+
+			# remove backend cached data
+			run %{
+				rm -rf #{current_path}/src/Backend/Cache/Analytics/* &&
+				rm -rf #{current_path}/src/Backend/Cache/Cronjobs/* &&
+				rm -rf #{current_path}/src/Backend/Cache/Locale/* &&
+				rm -rf #{current_path}/src/Backend/Cache/Mailmotor/* &&
+				rm -rf #{current_path}/src/Backend/Cache/MinifiedCss/* &&
+				rm -rf #{current_path}/src/Backend/Cache/MinifiedJs/* &&
+				rm -rf #{current_path}/src/Backend/Cache/CompiledTemplates/*
+			}
+		end
+    
 		desc 'Create needed symlinks'
 		task :link_files do
 			# get the list of folders in /frontend/files
