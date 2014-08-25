@@ -39,7 +39,7 @@ configuration.load do
 			# symlink the parameters
 			run %{
 				ln -sf #{shared_path}/config/parameters.yml #{release_path}/app/config/parameters.yml &&
-				ln -sf #{shared_path}/install/installed.txt #{release_path}/src/Install/Cache/installed.txt
+				ln -sf #{shared_path}/install/installed.txt #{release_path}/src/Install/Cache/Installed.txt
 			}
 		end
     
