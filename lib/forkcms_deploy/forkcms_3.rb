@@ -140,6 +140,59 @@ configuration.load do
 			if currentDirectoryExists == 'yes'
 				migrations.first_deploy
 			end
+
+			# Check if there are new migrations found
+			folders = capture("if [ -e #{release_path}/migrations ]; then ls -1 #{release_path}/migrations; fi").split(/\r?\n/)
+
+			if folders.length > 0
+				executedMigrations = capture("cat #{shared_path}/executed_migrations").chomp.split(/\r?\n/)
+				migrationsToExecute = Array.new
+
+				# Fetch all migration directories that aren't executed yet
+				folders.each do |dirname|
+					migrationsToExecute.push(dirname) if executedMigrations.index(dirname) == nil
+				end
+
+				if migrationsToExecute.length > 0
+					# This can take a while and can go wrong. let's show a maintenance page
+					# and make sure we can put back the database
+					migrations.symlink_maintenance
+					migrations.backup_database
+					on_rollback { migrations.rollback }
+
+					# run all migrations
+					migrationsToExecute.each do |dirname|
+						puts dirname
+					end
+
+					# all migrations where executed successfully, put them in the
+					# executed_migrations file
+					migrationsToExecute.each do |dirname|
+						run "echo #{dirname} | tee -a #{shared_path}/executed_migrations"
+					end
+				end
+			end
+		end
+
+		desc 'shows a maintenace page'
+		task :symlink_maintenance do
+			# todo: add a maintenace page and symlink it
+		end
+
+		desc 'Symlink back the document root with the current deployed version.'
+		task :symlink_root do
+			run("rm -rf #{document_root} && ln -sf #{current_path} #{document_root}")
+		end
+
+		desc 'backs up the database'
+		task :backup_database do
+			# todo: really backup the database
+		end
+
+		desc 'puts back the database'
+		task :rollback do
+			# todo: put the database back
+			migrations.symlink_root
 		end
 	end
 end
