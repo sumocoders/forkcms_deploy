@@ -183,7 +183,7 @@ configuration.load do
 						migrationFiles = capture("ls -1 #{migrationpath}").split(/\r?\n/)
 
 						migrationFiles.each do |filename|
-							# run("cd #{release_path}/tools && php install_locale.php -f #{deltaPath}/#{filename} -o") if filename.index('locale.xml') != nil
+							run "cd #{release_path}/tools && php install_locale.php -f #{migrationpath}/#{filename} -o" if filename.index('locale.xml') != nil
 							run "cd #{release_path} && php #{migrationpath}/#{filename}" if filename.index('update.php') != nil
 							if filename.index('update.sql') != nil
 								set :mysql_update_file, "#{migrationpath}/#{filename}"
