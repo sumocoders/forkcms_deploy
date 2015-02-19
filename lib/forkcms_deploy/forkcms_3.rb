@@ -7,11 +7,16 @@ configuration.load do
 	# custom events configuration
 	after 'deploy:setup' do
 		forkcms.link_document_root
+		migrations.prepare
 	end
 
 	after 'deploy:update_code' do
 		forkcms.link_configs
 		forkcms.link_files
+	end
+
+	before 'deploy:create_symlink' do
+		migrations.execute
 	end
 
 	# Fork CMS specific tasks
@@ -63,7 +68,7 @@ configuration.load do
 			}
 
 			# symlink the globals
-			run %{		  
+			run %{
 				ln -sf #{shared_path}/config/library/globals_backend.php #{release_path}/library/globals_backend.php &&
 				ln -sf #{shared_path}/config/library/globals_frontend.php #{release_path}/library/globals_frontend.php &&
 				ln -sf #{shared_path}/config/library/globals.php #{release_path}/library/globals.php &&
@@ -81,8 +86,8 @@ configuration.load do
 				warn "Warning: Document root (#{document_root}) already exists"
 				warn 'to link it to the Fork deploy issue the following command:'
 				warn '	ln -sf #{current_path} #{document_root}'
-			end 
-		end	
+			end
+		end
 
 		desc 'Create needed symlinks'
 		task :link_files do
@@ -99,6 +104,42 @@ configuration.load do
 					ln -s #{shared_path}/files/#{folder} #{release_path}/frontend/files/#{folder}
 				}
 			end
-		end	
+		end
+	end
+
+	namespace :migrations do
+		desc 'prepares the server for running fork migrations'
+		task :prepare do
+			# Check if the migrations file exists.
+			migrationsFileExists = capture("if [ -f #{shared_path}/executed_migrations ]; then echo 'yes'; fi").chomp
+
+			# Only create the file if it doesn't exists.
+			unless migrationsFileExists == 'yes'
+				# Create an empty executed_migrations file
+				put '', "#{shared_path}/executed_migrations"
+			end
+		end
+
+		desc 'fills in the executed_migrations on first deploy'
+		task :first_deploy do
+			# Put all items in the migrations folder in the executed_migrations file
+			# When doing a deploy:setup, we expect the database to already contain
+			# The migrations (so a clean copy of the database should be available
+			# when doing a setup)
+			folders = capture("if [ -e #{release_path}/migrations ]; then ls -1 #{release_path}/migrations; fi").split(/\r?\n/)
+
+			folders.each do |dirname|
+				run "echo #{dirname} | tee -a #{shared_path}/executed_migrations"
+			end
+		end
+
+		desc 'runs the migrations'
+		task :execute do
+			# If the current symlink doesn't exist yet, we're on a first deploy
+			currentDirectoryExists = capture("if [ ! -e #{current_path} ]; then echo 'yes'; fi").chomp
+			if currentDirectoryExists == 'yes'
+				migrations.first_deploy
+			end
+		end
 	end
 end
