@@ -214,7 +214,11 @@ configuration.load do
 
 		desc 'puts back the database'
 		task :rollback do
-			# todo: put the database back
+			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
+			yaml = YAML::load(parametersContent.gsub("%", ""))
+
+			run "mysql --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} < #{release_path}/mysql_backup.sql"
+
 			migrations.symlink_root
 		end
 	end
