@@ -1,3 +1,5 @@
+require 'yaml'
+
 configuration = Capistrano::Configuration.respond_to?(:instance) ? Capistrano::Configuration.instance(:must_exist) : Capistrano.configuration(:must_exist)
 
 configuration.load do
@@ -204,7 +206,10 @@ configuration.load do
 
 		desc 'backs up the database'
 		task :backup_database do
-			# todo: really backup the database
+			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
+			yaml = YAML::load(parametersContent.gsub("%", ""))
+
+			run "mysqldump --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} > #{release_path}/mysql_backup.sql"
 		end
 
 		desc 'puts back the database'
