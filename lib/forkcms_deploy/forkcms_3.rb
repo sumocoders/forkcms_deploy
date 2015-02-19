@@ -179,7 +179,18 @@ configuration.load do
 
 					# run all migrations
 					migrationsToExecute.each do |dirname|
-						puts dirname
+						migrationpath = "#{release_path}/migrations/#{dirname}"
+						migrationFiles = capture("ls -1 #{migrationpath}").split(/\r?\n/)
+
+						migrationFiles.each do |filename|
+							puts filename
+							# run("cd #{release_path}/tools && php install_locale.php -f #{deltaPath}/#{filename} -o") if filename.index('locale.xml') != nil
+							# run("cd #{release_path} && php delta/#{dirname}/#{filename}") if filename.index('update.php') != nil
+							if filename.index('update.sql') != nil
+								set :mysql_update_file, "#{migrationpath}/#{filename}"
+								migrations.mysql_update
+							end
+						end
 					end
 
 					# all migrations where executed successfully, put them in the
@@ -214,12 +225,18 @@ configuration.load do
 
 		desc 'puts back the database'
 		task :rollback do
+			set :mysql_update_file, "#{migrationpath}/#{filename}"
+			migrations.mysql_update
+
+			migrations.symlink_root
+		end
+
+		desc 'updates mysql with a certain (sql) file'
+		task :mysql_update do
 			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
 			yaml = YAML::load(parametersContent.gsub("%", ""))
 
-			run "mysql --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} < #{release_path}/mysql_backup.sql"
-
-			migrations.symlink_root
+			run "mysql --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} < #{mysql_update_file}"
 		end
 	end
 end
