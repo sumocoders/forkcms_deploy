@@ -118,6 +118,21 @@ configuration.load do
 				# Create an empty executed_migrations file
 				put '', "#{shared_path}/executed_migrations"
 			end
+
+			# Create a maintenance folder containing the index page from our gem
+			maintenance_path = File.dirname(__FILE__)
+			maintenance_path = "#{maintenance_path}/../maintenance"
+			run "mkdir #{shared_path}/maintenance"
+
+			# copy the contents of the index.html file to our shared folder
+			indexfile = File.open("#{maintenance_path}/index.html", "rb")
+			put indexfile.read, "#{shared_path}/maintenance/index.html"
+			indexfile.close
+
+			# copy the contents of the .htaccess file to our shared folder
+			htaccessfile = File.open("#{maintenance_path}/.htaccess", "rb")
+			put htaccessfile.read, "#{shared_path}/maintenance/.htaccess"
+			htaccessfile.close
 		end
 
 		desc 'fills in the executed_migrations on first deploy'
@@ -170,18 +185,21 @@ configuration.load do
 					migrationsToExecute.each do |dirname|
 						run "echo #{dirname} | tee -a #{shared_path}/executed_migrations"
 					end
+
+					# symlink the root back
+					migrations.symlink_root
 				end
 			end
 		end
 
 		desc 'shows a maintenace page'
 		task :symlink_maintenance do
-			# todo: add a maintenace page and symlink it
+			run "rm -rf #{document_root} && ln -sf #{shared_path}/maintenance #{document_root}"
 		end
 
 		desc 'Symlink back the document root with the current deployed version.'
 		task :symlink_root do
-			run("rm -rf #{document_root} && ln -sf #{current_path} #{document_root}")
+			run "rm -rf #{document_root} && ln -sf #{current_path} #{document_root}"
 		end
 
 		desc 'backs up the database'
