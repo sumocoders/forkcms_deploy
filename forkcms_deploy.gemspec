@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
-    "forkcms_deploy-2.0.0.gem",
     "forkcms_deploy.gemspec",
     "lib/forkcms_deploy.rb",
     "lib/forkcms_deploy/defaults.rb",
