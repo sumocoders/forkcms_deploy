@@ -8,6 +8,7 @@ begin
 		gemspec.homepage = "https://github.com/sumocoders/forkcms_deploy"
 		gemspec.authors = ['Tijs Verkoyen', 'Jan De Poorter', 'Sam Tubbax']
 		gemspec.add_dependency 'capistrano', '>=2.0.0'
+		gemspec.license = 'MIT'
 	end
 	Jeweler::GemcutterTasks.new
 rescue LoadError

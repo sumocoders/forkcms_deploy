@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "forkcms_deploy"
-  s.version = "2.6.0"
+  s.version = "2.6.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tijs Verkoyen", "Jan De Poorter", "Sam Tubbax"]
-  s.date = "2014-12-31"
+  s.date = "2015-02-23"
   s.description = "Deployment for ForkCMS with Capistrano"
   s.email = "info@sumocoders.be"
   s.extra_rdoc_files = [
@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
     "test/test_forkcms_deploy.rb"
   ]
   s.homepage = "https://github.com/sumocoders/forkcms_deploy"
+  s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "2.0.2"
   s.summary = "Deployment for ForkCMS with Capistrano"
