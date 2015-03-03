@@ -15,7 +15,7 @@ configuration.load do
 			composer.install_composer
 			run %{
 				cd #{latest_release} &&
-				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install
+				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install -o
 			}
 		end
 
@@ -42,7 +42,7 @@ configuration.load do
 				ln -sf #{shared_path}/install/installed.txt #{release_path}/src/Install/Cache/installed.txt
 			}
 		end
-    
+
 		desc 'Clear the frontend and backend cache-folders'
 		task :clear_cached do
 			# remove frontend cached data
@@ -67,7 +67,7 @@ configuration.load do
 				rm -rf #{current_path}/src/Backend/Cache/CompiledTemplates/*
 			}
 		end
-    
+
 		desc 'Create needed symlinks'
 		task :link_files do
 			# get the list of folders in /frontend/files
@@ -83,6 +83,6 @@ configuration.load do
 					ln -s #{shared_path}/files/#{folder} #{release_path}/src/Frontend/Files/#{folder}
 				}
 			end
-		end	
+		end
 	end
 end
