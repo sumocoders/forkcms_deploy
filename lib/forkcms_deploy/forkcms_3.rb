@@ -127,14 +127,16 @@ configuration.load do
 			run "mkdir #{shared_path}/maintenance"
 
 			# copy the contents of the index.html file to our shared folder
-			indexfile = File.open("#{maintenance_path}/index.html", "rb")
-			put indexfile.read, "#{shared_path}/maintenance/index.html"
-			indexfile.close
+			File.open("#{maintenance_path}/index.html", "rb") do |f|
+				put f.read, "#{shared_path}/maintenance/index.html"
+				f.close
+			end
 
 			# copy the contents of the .htaccess file to our shared folder
-			htaccessfile = File.open("#{maintenance_path}/.htaccess", "rb")
-			put htaccessfile.read, "#{shared_path}/maintenance/.htaccess"
-			htaccessfile.close
+			File.open("#{maintenance_path}/.htaccess", "rb") do |f|
+				put f.read, "#{shared_path}/maintenance/.htaccess"
+				f.close
+			end
 		end
 
 		desc 'fills in the executed_migrations on first deploy'
@@ -204,7 +206,7 @@ configuration.load do
 			end
 		end
 
-		desc 'shows a maintenace page'
+		desc 'shows a maintenance page'
 		task :symlink_maintenance do
 			run "rm -rf #{document_root} && ln -sf #{shared_path}/maintenance #{document_root}"
 		end
