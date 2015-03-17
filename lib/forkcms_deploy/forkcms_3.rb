@@ -1,3 +1,5 @@
+require 'yaml'
+
 configuration = Capistrano::Configuration.respond_to?(:instance) ? Capistrano::Configuration.instance(:must_exist) : Capistrano.configuration(:must_exist)
 
 configuration.load do
@@ -7,11 +9,16 @@ configuration.load do
 	# custom events configuration
 	after 'deploy:setup' do
 		forkcms.link_document_root
+		migrations.prepare
 	end
 
 	after 'deploy:update_code' do
 		forkcms.link_configs
 		forkcms.link_files
+	end
+
+	before 'deploy:create_symlink' do
+		migrations.execute
 	end
 
 	# Fork CMS specific tasks
@@ -63,7 +70,7 @@ configuration.load do
 			}
 
 			# symlink the globals
-			run %{		  
+			run %{
 				ln -sf #{shared_path}/config/library/globals_backend.php #{release_path}/library/globals_backend.php &&
 				ln -sf #{shared_path}/config/library/globals_frontend.php #{release_path}/library/globals_frontend.php &&
 				ln -sf #{shared_path}/config/library/globals.php #{release_path}/library/globals.php &&
@@ -81,8 +88,8 @@ configuration.load do
 				warn "Warning: Document root (#{document_root}) already exists"
 				warn 'to link it to the Fork deploy issue the following command:'
 				warn '	ln -sf #{current_path} #{document_root}'
-			end 
-		end	
+			end
+		end
 
 		desc 'Create needed symlinks'
 		task :link_files do
@@ -99,6 +106,138 @@ configuration.load do
 					ln -s #{shared_path}/files/#{folder} #{release_path}/frontend/files/#{folder}
 				}
 			end
-		end	
+		end
+	end
+
+	namespace :migrations do
+		desc 'prepares the server for running fork migrations'
+		task :prepare do
+			# Check if the migrations file exists.
+			migrationsFileExists = capture("if [ -f #{shared_path}/executed_migrations ]; then echo 'yes'; fi").chomp
+
+			# Only create the file if it doesn't exists.
+			unless migrationsFileExists == 'yes'
+				# Create an empty executed_migrations file
+				put '', "#{shared_path}/executed_migrations"
+			end
+
+			# Create a maintenance folder containing the index page from our gem
+			maintenance_path = File.dirname(__FILE__)
+			maintenance_path = "#{maintenance_path}/../maintenance"
+			run "mkdir #{shared_path}/maintenance"
+
+			# copy the contents of the index.html file to our shared folder
+			File.open("#{maintenance_path}/index.html", "rb") do |f|
+				put f.read, "#{shared_path}/maintenance/index.html"
+				f.close
+			end
+
+			# copy the contents of the .htaccess file to our shared folder
+			File.open("#{maintenance_path}/.htaccess", "rb") do |f|
+				put f.read, "#{shared_path}/maintenance/.htaccess"
+				f.close
+			end
+		end
+
+		desc 'fills in the executed_migrations on first deploy'
+		task :first_deploy do
+			# Put all items in the migrations folder in the executed_migrations file
+			# When doing a deploy:setup, we expect the database to already contain
+			# The migrations (so a clean copy of the database should be available
+			# when doing a setup)
+			folders = capture("if [ -e #{release_path}/migrations ]; then ls -1 #{release_path}/migrations; fi").split(/\r?\n/)
+
+			folders.each do |dirname|
+				run "echo #{dirname} | tee -a #{shared_path}/executed_migrations"
+			end
+		end
+
+		desc 'runs the migrations'
+		task :execute do
+			# If the current symlink doesn't exist yet, we're on a first deploy
+			currentDirectoryExists = capture("if [ ! -e #{current_path} ]; then echo 'yes'; fi").chomp
+			if currentDirectoryExists == 'yes'
+				migrations.first_deploy
+			end
+
+			# Check if there are new migrations found
+			folders = capture("if [ -e #{release_path}/migrations ]; then ls -1 #{release_path}/migrations; fi").split(/\r?\n/)
+
+			if folders.length > 0
+				executedMigrations = capture("cat #{shared_path}/executed_migrations").chomp.split(/\r?\n/)
+				migrationsToExecute = Array.new
+
+				# Fetch all migration directories that aren't executed yet
+				folders.each do |dirname|
+					migrationsToExecute.push(dirname) if executedMigrations.index(dirname) == nil
+				end
+
+				if migrationsToExecute.length > 0
+					# This can take a while and can go wrong. let's show a maintenance page
+					# and make sure we can put back the database
+					migrations.symlink_maintenance
+					migrations.backup_database
+					on_rollback { migrations.rollback }
+
+					# run all migrations
+					migrationsToExecute.each do |dirname|
+						migrationpath = "#{release_path}/migrations/#{dirname}"
+						migrationFiles = capture("ls -1 #{migrationpath}").split(/\r?\n/)
+
+						migrationFiles.each do |filename|
+							run "cd #{release_path}/tools && php install_locale.php -f #{migrationpath}/#{filename} -o" if filename.index('locale.xml') != nil
+							run "cd #{release_path} && php #{migrationpath}/#{filename}" if filename.index('update.php') != nil
+							if filename.index('update.sql') != nil
+								set :mysql_update_file, "#{migrationpath}/#{filename}"
+								migrations.mysql_update
+							end
+						end
+					end
+
+					# all migrations where executed successfully, put them in the
+					# executed_migrations file
+					migrationsToExecute.each do |dirname|
+						run "echo #{dirname} | tee -a #{shared_path}/executed_migrations"
+					end
+
+					# symlink the root back
+					migrations.symlink_root
+				end
+			end
+		end
+
+		desc 'shows a maintenance page'
+		task :symlink_maintenance do
+			run "rm -rf #{document_root} && ln -sf #{shared_path}/maintenance #{document_root}"
+		end
+
+		desc 'Symlink back the document root with the current deployed version.'
+		task :symlink_root do
+			run "rm -rf #{document_root} && ln -sf #{current_path} #{document_root}"
+		end
+
+		desc 'backs up the database'
+		task :backup_database do
+			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
+			yaml = YAML::load(parametersContent.gsub("%", ""))
+
+			run "mysqldump --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} > #{release_path}/mysql_backup.sql"
+		end
+
+		desc 'puts back the database'
+		task :rollback do
+			set :mysql_update_file, "#{migrationpath}/#{filename}"
+			migrations.mysql_update
+
+			migrations.symlink_root
+		end
+
+		desc 'updates mysql with a certain (sql) file'
+		task :mysql_update do
+			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
+			yaml = YAML::load(parametersContent.gsub("%", ""))
+
+			run "mysql --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} < #{mysql_update_file}"
+		end
 	end
 end
