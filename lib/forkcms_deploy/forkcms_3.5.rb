@@ -15,7 +15,7 @@ configuration.load do
 			composer.install_composer
 			run %{
 				cd #{latest_release} &&
-				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install
+				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install -o
 			}
 		end
 
