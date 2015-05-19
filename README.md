@@ -3,6 +3,7 @@ This is a gem that enables you to deploy a ForkCMS install to your server. It wa
 
 ## Installation
 The recipe is available in the forkcms_deploy gem, which can be installed via [RubyGems.org](http://rubygems.org)
+
 	gem install forkcms_deploy
 
 ## Available recipes
