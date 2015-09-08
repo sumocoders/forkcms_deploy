@@ -221,7 +221,7 @@ configuration.load do
 			parametersContent = capture "cat #{shared_path}/config/parameters.yml"
 			yaml = YAML::load(parametersContent.gsub("%", ""))
 
-			run "mysqldump --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} > #{release_path}/mysql_backup.sql"
+			run "mysqldump --skip-lock-tables --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} > #{release_path}/mysql_backup.sql"
 		end
 
 		desc 'puts back the database'
