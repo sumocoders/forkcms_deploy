@@ -4,7 +4,7 @@ configuration = Capistrano::Configuration.respond_to?(:instance) ? Capistrano::C
 
 configuration.load do
 	# define some extra folder to create
-	set :shared_children, %w(files config/frontend config/backend config/library)
+	set :shared_children, %w(files config/frontend config/backend config/library sessions)
 
 	# custom events configuration
 	after 'deploy:setup' do
@@ -14,6 +14,7 @@ configuration.load do
 
 	after 'deploy:update_code' do
 		forkcms.link_configs
+		forkcms.link_sessions
 		forkcms.link_files
 	end
 
@@ -76,6 +77,17 @@ configuration.load do
 				ln -sf #{shared_path}/config/library/globals.php #{release_path}/library/globals.php &&
 				ln -sf #{shared_path}/config/frontend/config.php #{release_path}/frontend/cache/config/config.php &&
 				ln -sf #{shared_path}/config/backend/config.php #{release_path}/backend/cache/config/config.php
+			}
+		end
+
+		desc 'Link the session files'
+		task :link_sessions do
+
+			run %{
+			  mkdir -p #{shared_path}/sessions &&
+				cp -r #{release_path}/app/sessions #{shared_path}/ &&
+				rm -rf #{release_path}/app/sessions &&
+				ln -s #{shared_path}/sessions #{release_path}/app/sessions
 			}
 		end
 
