@@ -84,7 +84,7 @@ configuration.load do
 		task :link_sessions do
 
 			run %{
-			  mkdir -p #{shared_path}/sessions &&
+				mkdir -p #{shared_path}/sessions &&
 				cp -r #{release_path}/app/sessions #{shared_path}/ &&
 				rm -rf #{release_path}/app/sessions &&
 				ln -s #{shared_path}/sessions #{release_path}/app/sessions
