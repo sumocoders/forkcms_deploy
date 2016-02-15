@@ -226,7 +226,7 @@ configuration.load do
 
 		desc 'puts back the database'
 		task :rollback do
-			set :mysql_update_file, "#{migrationpath}/#{filename}"
+			set :mysql_update_file, #{release_path}/mysql_backup.sql
 			migrations.mysql_update
 
 			migrations.symlink_root
