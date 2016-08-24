@@ -11,7 +11,7 @@ The recipe is available in the forkcms_deploy gem, which can be installed via [R
 * forkcms_deploy/defaults		- Best practices for each deployment.
 
 ## Example recipe
-This recipe will deploy the ForkCMS-instance to your-app.com. 
+This recipe will deploy the ForkCMS-instance to your-app.com.
 
 	load 'deploy' if respond_to?(:namespace) # cap2 differentiator
 
@@ -26,7 +26,7 @@ This recipe will deploy the ForkCMS-instance to your-app.com.
 
 	# set document_root
 	set :document_root, "/home/#{user}/www.your-app.com"			# eg.: /home/sumocoders/default_www
-	
+
 	# define roles
 	server "your-app.com", :app, :web, :db, :primary => true		# eg.: crsolutions.be
 
@@ -49,3 +49,19 @@ This recipe will deploy the ForkCMS-instance to your-app.com.
 					INSTALL
 		exit 1
 	end
+
+# Bumping the version of this gem
+
+1. increase the version with one of the following commands
+
+```bash
+rake version:bump:patch
+rake version:bump:minor
+rake version:bump:patch
+```
+
+2. release the gem
+
+```bash
+rake release
+```
