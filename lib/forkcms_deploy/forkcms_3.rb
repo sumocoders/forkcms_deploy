@@ -21,6 +21,10 @@ configuration.load do
 		migrations.execute
 	end
 
+	after "deploy:create_symlink" do
+		opcode.clear
+	end
+
 	# Fork CMS specific tasks
 	namespace :forkcms do
 		desc 'Clear the frontend and backend cache-folders'
@@ -238,6 +242,16 @@ configuration.load do
 			yaml = YAML::load(parametersContent.gsub("%", ""))
 
 			run "mysql --default-character-set='utf8' --host=#{yaml['parameters']['database.host']} --port=#{yaml['parameters']['database.port']} --user=#{yaml['parameters']['database.user']} --password=#{yaml['parameters']['database.password']} #{yaml['parameters']['database.name']} < #{mysql_update_file}"
+		end
+	end
+
+	namespace :opcode do
+		desc "Clears the opcode cache"
+		task :clear do
+			run "touch #{document_root}/reset.php"
+			run "echo '<?php opcache_reset()' > #{document_root}/reset.php"
+			run %{ curl #{url}/reset.php }
+			run "rm #{document_root}/reset.php"
 		end
 	end
 end
