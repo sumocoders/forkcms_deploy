@@ -248,10 +248,10 @@ configuration.load do
 	namespace :opcode do
 		desc "Clears the opcode cache"
 		task :clear do
-			run "touch #{document_root}/reset.php"
-			run "echo '<?php opcache_reset()' > #{document_root}/reset.php"
-			run %{ curl #{url}/reset.php }
-			run "rm #{document_root}/reset.php"
+			run "touch #{document_root}/php-opcache-reset.php"
+			run "echo '<?php opcache_reset()' > #{document_root}/php-opcache-reset.php"
+			run %{ curl #{url}/php-opcache-reset.php }
+			run "rm #{document_root}/php-opcache-reset.php"
 		end
 	end
 end
