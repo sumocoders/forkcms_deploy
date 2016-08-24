@@ -25,6 +25,10 @@ configuration.load do
 		opcode.clear
 	end
 
+	after "sumodev:redirect:put" do
+		opcode.clear
+	end
+
 	# Fork CMS specific tasks
 	namespace :forkcms do
 		desc 'Clear the frontend and backend cache-folders'
