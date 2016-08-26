@@ -253,7 +253,9 @@ configuration.load do
 		desc "Clears the opcode cache"
 		task :clear do
 			run "touch #{document_root}/php-opcache-reset.php"
-			run "echo '<?php opcache_reset();' > #{document_root}/php-opcache-reset.php"
+			# clearstatcache(true) will clear the file stats cache and the realpath cache
+			# opache_reset will clear the opcache if this is available
+			run "echo \"<?php clearstatcache(true); if (function_exists('opache_reset')) { opcache_reset(); }\" > #{document_root}/php-opcache-reset.php"
 			run %{ curl #{url}/php-opcache-reset.php }
 			run "rm #{document_root}/php-opcache-reset.php"
 		end
