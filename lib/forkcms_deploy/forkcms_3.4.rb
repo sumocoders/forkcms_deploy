@@ -13,14 +13,14 @@ configuration.load do
 			composer.install_composer
 			run %{
 				cd #{latest_release} &&
-				php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install -o --no-dev
+				#{php_bin} -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC' #{shared_path}/composer.phar install -o --no-dev
 			}
 		end
 
 		desc 'Install composer'
 		task :install_composer do
 			run %{
-				if [ ! -e #{shared_path}/composer.phar ]; then cd #{shared_path}; curl -ks https://getcomposer.org/installer | php -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC'; fi
+				if [ ! -e #{shared_path}/composer.phar ]; then cd #{shared_path}; curl -ks https://getcomposer.org/installer | #{php_bin} -d 'suhosin.executor.include.whitelist = phar' -d 'date.timezone = UTC'; fi
 			}
 		end
 	end
