@@ -16,6 +16,8 @@ configuration.load do
   # 3 releases should be enough.
   _cset(:keep_releases) { 3 }
 
+  _cset(:php_bin) { "php" }
+
   # remote caching will keep a local git repo on the server you're deploying to and simply run a fetch from that
   # rather than an entire clone. This is probably the best option and will only fetch the differences each deploy
   _cset(:deploy_via) { remote_cache }
