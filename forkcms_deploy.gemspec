@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "forkcms_deploy"
-  s.version = "4.4.6"
+  s.version = "4.5.0"
 
   s.authors = ["Tijs Verkoyen", "Jan De Poorter", "Sam Tubbax", "Wouter Sioen"]
   s.date = "2021-06-15"
