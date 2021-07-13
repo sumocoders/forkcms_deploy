@@ -50,18 +50,9 @@ This recipe will deploy the ForkCMS-instance to your-app.com.
 		exit 1
 	end
 
-# Bumping the version of this gem
+# Publishing a new version.
 
-1. increase the version with one of the following commands
-
-```bash
-rake version:bump:patch
-rake version:bump:minor
-rake version:bump:patch
-```
-
-2. release the gem
-
-```bash
-rake release
-```
+1. bump the version in the gemspec file
+2. commit this
+3. build the gem using `gem build forkcms_deploy.gemspec`
+4. push the gem using `gem push forkcms_deploy-xxx.gem`
